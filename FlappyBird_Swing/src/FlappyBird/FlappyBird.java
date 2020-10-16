@@ -30,13 +30,14 @@ public class FlappyBird implements ActionListener, MouseListener, KeyListener {
 
 		JFrame frame = new JFrame();
 		Timer timer = new Timer(20, this);
-		
+
 		renderer = new Renderer();
 		random = new Random();
 
 		// Propiedades del JFrame principal del juego
+		
 		frame.add(renderer);
-		frame.setTitle("Flappy Bird with Swing");
+		frame.setTitle("Flappy Bird - Play");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(Data.width, Data.heigth);
 		frame.setLocationRelativeTo(null);
@@ -47,7 +48,14 @@ public class FlappyBird implements ActionListener, MouseListener, KeyListener {
 
 		// Creamos un objecto Rectangle que representará a nuestro pájaro
 		// proporcionando su tamaño con las variables "Width" y "Heigth" entre 2
+		// para situarlo en el medio de la pantalla, y con los valores 20 y 20
+		// se establece la medida del Rectangle
+		
 		bird = new Rectangle(Data.width / 2 - 10, Data.heigth / 2 - 10, 20, 20);
+		
+		// Creamos el ArrayList pipes de Rectangles donde se guardarán las tuberías que se creeen
+		// en la funcion addPipe()
+		
 		pipes = new ArrayList<Rectangle>();
 
 		addPipe(true);
@@ -57,32 +65,40 @@ public class FlappyBird implements ActionListener, MouseListener, KeyListener {
 
 		// Comenzar el juego.
 		timer.start();
-		
+
 	}
 
-	// Esta función se encarga de crear las tuberías donde el pájaro (bird) debe
-	// atravesarlas por el hueco que hay entre ellas.
+	// Esta función se encarga de crear las tuberías y las añade al ArrayList pipes
+	// utiliza las constantes de Data.class
+	
+	
+	
 	public void addPipe(boolean start) {
 
-		int pipeHeigth = 50 + random.nextInt(300);
+		// Esta variable cambiará por cada vez que se instancie, con random() nos permitirá tener
+		// tuberías con alturas variables, haciendo asi que ninguna tubería sea la misma.
+		// El numero aleatorio no puede superar 300, es decir, 50 + Data.space.
 		
-		// Crea una nueva tubería pipe, le proporciona sus Axis X e Y, y su ancho y
-		// alto.
+		int pipeHeigth = 50 + random.nextInt(300);		
+							
+
+		// Crea	las primeras tuberías.
 		if (start) {
-			pipes.add(new Rectangle(Data.width + Data.pipeWidth + pipes.size() * 300,
-					Data.heigth - pipeHeigth - 120, Data.pipeWidth, pipeHeigth));
-			pipes.add(new Rectangle(Data.width + Data.pipeWidth + (pipes.size() - 1) * 300, 0, Data.pipeWidth,
-					Data.heigth - pipeHeigth - Data.space));
+			// X = Fuera de la ventana y 300px de separación -- Y = Punto más bajo - pipeHeigth - 120 (Suelo)
+			pipes.add(new Rectangle(Data.width + Data.pipeWidth + pipes.size() * 300, Data.heigth - pipeHeigth - 120, Data.pipeWidth, pipeHeigth));	
+			// X = Fuera de la ventana y 300px de separación, pero debajo del primer Rectangle -- Y = Punto más alto -- Altura = Desde el suelo hasta 250px de la otra tubería.
+			pipes.add(new Rectangle(Data.width + Data.pipeWidth + (pipes.size() - 1) * 300, 0, Data.pipeWidth, Data.heigth - pipeHeigth - Data.space));
+		
+		// Crea una tubería después de eliminar otra.	
 		} else {
-			pipes.add(new Rectangle(pipes.get(pipes.size() - 1).x + 600, Data.heigth - pipeHeigth - 120,
-					Data.pipeWidth, pipeHeigth));
-			pipes.add(new Rectangle(pipes.get(pipes.size() - 1).x, 0, Data.pipeWidth,
-					Data.heigth - pipeHeigth - Data.space));
+			pipes.add(new Rectangle(pipes.get(pipes.size() - 1).x + 600, Data.heigth - pipeHeigth - 120, Data.pipeWidth, pipeHeigth));
+			pipes.add(new Rectangle(pipes.get(pipes.size() - 1).x, 0, Data.pipeWidth, Data.heigth - pipeHeigth - Data.space));
 		}
 
 	}
 
 	// Esta función pinta el objecto Rectangle "pipe" de color rojo.
+	
 	public void paintPipe(Graphics g, Rectangle pipe) {
 
 		g.setColor(Color.yellow);
@@ -90,16 +106,23 @@ public class FlappyBird implements ActionListener, MouseListener, KeyListener {
 
 	}
 
-	// Esta funcion se encarga de iniciar el juego y de acabarlo. Consta de 3 fases	
+	// Esta funcion se ejecuta cuando se hace CLICK o se oprime SPACE. Controla el estado del juego
+	// es decir, si el juego ha acabado resetea los datos o si aun no ha empezado, lo empieza.
+	
+	// Una vez comprobado el estado del juego ejecutará la funcion jump(), asi antes de saltar
+	// verificará si el juego ha terminado o no
+	
 	public void stageGame() {
 
 		// Si el juego ha acabado. Borra todas las tuberías añadidas al ArrayList,
-		// reinicia marcador y crea un nuevo Rectangle del pájaro en la posición inicial.
-		// Tambíen crea otra tanda de tuberías. 
+		// reinicia marcador y crea un nuevo Rectangle del pájaro en la posición
+		// inicial.
+		// Tambíen crea otra tanda de tuberías.
+
+		// Una vez hecho el reseteo, con el boolean "finish" lo ""verifica""
 		
-		// Una vez hecho el reseteo, con el boolean "finish" lo ""verifica"" 
 		if (finish) {
-			bird = new Rectangle(Data.width / 2, Data.heigth / 2, 20, 20);
+			bird = new Rectangle(Data.width / 2 -10 , Data.heigth / 2 -10 , 20, 20);
 			pipes.clear();
 			ySpeed = 0;
 			score = 0;
@@ -111,117 +134,35 @@ public class FlappyBird implements ActionListener, MouseListener, KeyListener {
 
 			finish = false;
 		}
+
+		// Si el juego no ha empezado aun lo empieza.
 		
-		// Si el juego no ha empezado aun,
 		if (!start) {
 			start = true;
+
+			// En mitad de la partida, por cada vez que se pulse la tecla SPACE o CLICK, si el pájaro aun no ha muerto
+			// establecerá su ySpeed en 0, esto hará que cuando salte su valor vuelva a ser 0, sin este IF a la hora de saltar
+			// tendría en cuenta la gravedad, haciendo que este sea más debil. Este IF pone a 0 su fuerza haciendo que
+			// su salto sea uniforme.
 			
-			// Si el juego aun no ha acabado.
 		} else if (!finish) {
 			if (ySpeed > 0) {
 				ySpeed = 0;
 			}
-			
+
 		}
-		
+
 		jump();
 
 	}
 
 	// Función basica que se ejecuta al pulsar SPACE o CLICK.
-	public void jump(){
-		// Por cada click, la posY del pájaro aumenta 10.
-		ySpeed -= 10;
-		
-	}
 	
-	public static void main(String[] args) {
-
-		flappyBird = new FlappyBird();
-
-	}
-
-	public void actionPerformed(ActionEvent e) {
-
-		// Velocidad de paso de las tuberías. Cuanto mas, más rapido vienen.
-		int speed = 10;
+	public void jump() {
+		// Por cada click, la posY del pájaro aumenta 10. Sin el IF final en stageGame(),
+		// su ySpeed seria (-10 + 4 (Gravedad) = -6)
 		
-		// Bucles del juego, se produce cada 0,05s == "1seg = 20 ticks"
-		ticks++;
-
-		// Movimiento de las tuberías
-
-		if (start) {
-			// Este FOR se encarga de mover las tuberías, cuanto más alto sea
-			// el valor de "speed", mas rapido avanzarán.
-			// Al moverse va reduciendo su eje X (IZQ < DER) 
-			for (int i = 0; i < pipes.size(); i++) {
-				Rectangle pipe = pipes.get(i);
-				pipe.x -= speed;
-			} 
-
-			// Este IF se encarga de "simular la gravedad", si el MOD de 2 es 0 (ocurrirá
-			// cada 0,1s). El valor de "ySpeed" augmentará en 3. Cuanto más alto sea el valor
-			// que aumente ySpeed, más fuerte será la fuerza de la "gravedad" que enviará al
-			// pajaro contra el suelo. Afecta tanto en la caida como en el bote al bajar de velocidad			
-			if (ticks % 2 == 0 && ySpeed < 15) {
-				ySpeed += 3;
-			}
-
-			// Este FOR se encarga de eliminar del ArrayList una tubería cuando una de ellas llegue
-			// a 0 sumando su posiciónX + su anchura (aprox. -300x)
-			for (int i = 0; i < pipes.size(); i++) {
-				Rectangle pipe = pipes.get(i);
-				if (pipe.x + pipe.width < 0) {
-					pipes.remove(pipe);
-					if (pipe.y == 0) {
-						addPipe(false);
-					}
-				}
-			}
-
-			bird.y += ySpeed;
-
-			for (Rectangle pipe : pipes) {
-				// Si el pájaro atraviesa correctamente y sin tocar una tubería
-				// gana 1 punto
-				if (pipe.y == 0 && bird.x + bird.width / 2 > pipe.x + pipe.width / 2 - 10
-						&& bird.x + bird.width / 2 < pipe.x + pipe.width / 2 + 10) {
-					score++;
-				}
-				// Si el pájaro se estrella...
-				if (pipe.intersects(bird)) {
-					finish = true;
-
-					// El pájaro cae hasta abajo (?) -- Revisar, el pajaro sube xd
-					if (bird.x <= pipe.x) {
-						bird.x = pipe.x - bird.width;
-					} else {
-						if (pipe.y != 0) {
-							bird.y = pipe.y - bird.height;
-						} else if (bird.y < pipe.height) {
-							bird.y = pipe.height;
-						}
-					}
-				}
-			}
-
-			// Si el pajaro toca el techo...
-			if (bird.y > Data.heigth - 120 || bird.y < 0) {
-				finish = true;
-			}
-
-		
-			// Si el pájaro toca el suelo...
-			if (bird.y + ySpeed >= Data.heigth - 120) {
-				bird.y = Data.heigth - 120 - bird.height;
-				finish = true;
-			}
-			
-
-		}
-
-		renderer.repaint();
+		ySpeed -= 10;
 
 	}
 
@@ -271,18 +212,116 @@ public class FlappyBird implements ActionListener, MouseListener, KeyListener {
 
 		// Si aun no ha empezado a jugar...
 		if (!start) {
-			g.drawString("Comença!", 75, Data.heigth / 2);
+			g.drawString("Comença!", Data.width / 4, Data.heigth / 2);
 		}
 
 		// Si ha acabado de jugar o ha muerto...
 		if (finish) {
-			g.drawString("Fi de la partida...", 100, Data.heigth / 2);
+			g.drawString("Fi de la partida...", Data.width / 4, Data.heigth / 2);
 		}
 
 		// En mitad de la partida, esta hara de marcador.
 		if (!finish && start) {
-			g.drawString(String.valueOf(pipes.size()), Data.width / 2, 100);
+			g.drawString(String.valueOf(score),Data.width / 2, 100);
 		}
+
+	}
+
+	public void actionPerformed(ActionEvent e) {
+
+		// Velocidad de paso de las tuberías. Cuanto mas, más rapido vienen.
+		int speed = 10;
+
+		// Bucles del juego, se produce cada 0,05s == "1seg = 20 ticks"
+		ticks++;
+
+		// Movimiento de las tuberías
+
+		if (start) {
+			// Este FOR se encarga de mover las tuberías, cuanto más alto sea
+			// el valor de "speed", mas rapido avanzarán.
+			// Al moverse va reduciendo su eje X (IZQ < DER)
+			
+			// Si el jugador ha perdido las tuberías dejan de moverse.
+			for (int i = 0; i < pipes.size(); i++) {
+				Rectangle pipe = pipes.get(i);
+				if (!finish) {
+					pipe.x -= speed;
+				}else {
+					pipe.x -= 0;
+				}
+				
+			}
+
+			// Este IF se encarga de "simular la gravedad", si el MOD de 2 es 0 (ocurrirá
+			// cada 0,1s). El valor de "ySpeed" augmentará en 3. Cuanto más alto sea el
+			// valor
+			// que aumente ySpeed, más fuerte será la fuerza de la "gravedad" que enviará al
+			// pajaro contra el suelo. Afecta tanto en la caida como en el bote al bajar de
+			// velocidad
+			if (ticks % 2 == 0 && ySpeed < 15) {
+				ySpeed += 3;
+			}
+
+			// Este FOR se encarga de eliminar del ArrayList una tubería cuando una de ellas
+			// llegue
+			// a 0 sumando su posiciónX + su anchura (aprox. -300x)
+			for (int i = 0; i < pipes.size(); i++) {
+				Rectangle pipe = pipes.get(i);
+				if (pipe.x + pipe.width < 0) {
+					pipes.remove(pipe);
+					if (pipe.y == 0) {
+						addPipe(false);
+					}
+				}
+			}
+
+			bird.y += ySpeed;
+
+			for (Rectangle pipe : pipes) {
+				// Si el pájaro atraviesa correctamente y sin tocar una tubería
+				// gana 1 punto
+				if (pipe.y == 0 && bird.x + bird.width / 2 > pipe.x + pipe.width / 2 - 10 
+						&& bird.x + bird.width / 2 < pipe.x + pipe.width / 2 + 10) {
+					score++;
+				}
+				// Si el pájaro se estrella...
+				if (pipe.intersects(bird)) {
+					finish = true;
+
+					// El pájaro cae hasta abajo (?) -- Revisar, el pajaro sube xd
+					if (bird.x <= pipe.x) {
+						bird.x = pipe.x - bird.width;
+					} else {
+						if (pipe.y != 0) {
+							bird.y = pipe.y - bird.height;
+						} else if (bird.y < pipe.height) {
+							bird.y = pipe.height;
+						}
+					}
+				}
+			}
+
+			// Si el pajaro toca el techo...
+			if (bird.y > Data.heigth - 120 || bird.y < 0) {
+				finish = true;			
+			}
+
+			// Si el pájaro toca el suelo...
+			if (bird.y + ySpeed >= Data.heigth - 120) {
+				bird.y = Data.heigth - 120 - bird.height;
+				finish = true;
+			}
+
+		}
+
+		renderer.repaint();
+
+	}
+
+	public static void main(String[] args) {
+
+		flappyBird = new FlappyBird();
 
 	}
 

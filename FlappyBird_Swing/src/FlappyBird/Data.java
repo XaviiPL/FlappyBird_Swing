@@ -8,8 +8,9 @@ public class Data {
 	public static final int heigth = 720;		// Alto de la ventana del juego total
 
 	public static final int space = 250;		// Espacio entre tuberías.
-	public static final int pipeWidth = 150;	// Anchura de las tuberías
+	public static final int pipeWidth = 100;	// Anchura de las tuberías
 	
-	
-	
+	public static boolean easyMode;				// Dificultad del juego, por defecto estara TRUE
+	public static boolean hardMode;				// Si esta TRUE, el juego será más dificil.
+		
 }
