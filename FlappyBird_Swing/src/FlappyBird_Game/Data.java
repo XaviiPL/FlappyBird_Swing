@@ -1,4 +1,4 @@
-package FlappyBird;
+package FlappyBird_Game;
 
 public class Data {
 

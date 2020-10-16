@@ -1,4 +1,4 @@
-package FlappyBird;
+package FlappyBird_Game;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
