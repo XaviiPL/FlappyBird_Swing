@@ -23,6 +23,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 
 public class FlappyBird extends JFrame implements ActionListener, MouseListener, KeyListener {
 
@@ -34,26 +36,26 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 	public int ticks, ySpeed, score, maxScore = 0;
 	public String name;
 	public Random random;
-	
+
 	public FlappyBird() {
 
 		Timer timer = new Timer(20, this);
 
 		renderer = new Renderer();
 		random = new Random();
-		
+
 		// Este TRY se encarga de obtener el valor de maxScore registrado en el fichero
 		// rankingData.txt
-		
+
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(Data.rankingData));
 			if (!(Data.rankingData.length() == 0)) {
 				String line = br.readLine();
 				String[] lineSplit = line.split(" // ");
 				maxScore = Integer.parseInt(lineSplit[1]);
-			}else {
+			} else {
 				maxScore = 0;
-			}			
+			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -62,8 +64,7 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 			e.printStackTrace();
 		}
 
-		// Propiedades del JFrame principal del juego
-
+		
 		add(renderer);
 		setTitle("Flappy Bird - Play");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -154,34 +155,13 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 
 		if (finish) {
 
-			// Si la puntuación obtenida es mayor que la registrada en el ranking
-			// pedirá al usuario su nombre para después añadirlo al ranking.
-			if (score > maxScore) {
-				name = JOptionPane.showInputDialog("Introdueix el teu nom");
-				if (name.isEmpty() && name.isBlank()) {
-					name = "Anoním";
-				}
-				maxScore = score;
-				
-				// Escribe en el fichero rankingData.txt el nombre registrado y su máxima puntuación.
-				
-				try {
-					BufferedWriter bw = new BufferedWriter(new FileWriter(Data.rankingData));
-					bw.write(name + " // " + score);
-					bw.flush();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				
-			}
-			
 			// Si el juego ha acabado. Borra todas las tuberías añadidas al ArrayList,
 			// reinicia marcador y crea un nuevo Rectangle del pájaro en la posición
 			// inicial.
 			// Tambíen crea otra tanda de tuberías.
 
 			// Una vez hecho el reseteo, con el boolean "finish" lo ""verifica""
-			
+
 			bird = new Rectangle(Data.width / 2 - 10, Data.heigth / 2 - 10, 20, 20);
 			pipes.clear();
 			ySpeed = 0;
@@ -295,15 +275,14 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 
 		// Velocidad de paso de las tuberías. Cuanto mas, más rapido vienen.
 		// Si la dificultad es EASY = 10, si es HARD = 20
-		
+
 		int speed = 0;
 		if (Data.easyMode) {
-			 speed = 10;
+			speed = 10;
 		}
 		if (Data.hardMode) {
 			speed = 20;
 		}
-		
 
 		// Bucles del juego, se produce cada 0,05s == "1seg = 20 ticks"
 		ticks++;
@@ -332,7 +311,7 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 			// que aumente ySpeed, más fuerte será la fuerza de la "gravedad" que enviará al
 			// pajaro contra el suelo. Afecta tanto en la caida como en el bote al bajar de
 			// velocidad
-			
+
 			// Si la dificultad es EASY, ySPEED = 2, si es HARD, ySPEED = 4
 			if (ticks % 2 == 0 && ySpeed < 15) {
 				if (Data.easyMode) {
@@ -341,7 +320,7 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 				if (Data.hardMode) {
 					ySpeed += 4;
 				}
-				
+
 			}
 
 			// Este FOR se encarga de eliminar del ArrayList una tubería cuando una de ellas
@@ -369,6 +348,7 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 				// Si el pájaro se estrella...
 				if (pipe.intersects(bird)) {
 					finish = true;
+					ranking();
 
 					// El pájaro cae hasta abajo (?) -- Revisar, el pajaro sube xd
 					if (bird.x <= pipe.x) {
@@ -386,17 +366,45 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 			// Si el pajaro toca el techo...
 			if (bird.y > Data.heigth - 120 || bird.y < 0) {
 				finish = true;
+				ranking();
 			}
 
 			// Si el pájaro toca el suelo...
 			if (bird.y + ySpeed >= Data.heigth - 120) {
 				bird.y = Data.heigth - 120 - bird.height;
 				finish = true;
+				ranking();
 			}
 
 		}
 
 		renderer.repaint();
+
+	}
+
+	public void ranking() {
+
+		// Si la puntuación obtenida es mayor que la registrada en el ranking
+		// pedirá al usuario su nombre para después añadirlo al ranking.
+		if (score > maxScore) {
+			name = JOptionPane.showInputDialog("Introdueix el teu nom");
+			if (name.isEmpty() && name.isBlank()) {
+				name = "Anoním";
+			}
+			maxScore = score;
+
+			// Escribe en el fichero rankingData.txt el nombre registrado y su máxima
+			// puntuación.
+
+			try {
+				BufferedWriter bw = new BufferedWriter(new FileWriter(Data.rankingData));
+				bw.write(name + " // " + score);
+				bw.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
 
 	}
 
@@ -417,8 +425,6 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 		stageGame();
 
 	}
-	
-	
 
 	@Override
 	public void keyTyped(KeyEvent e) {

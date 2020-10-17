@@ -14,6 +14,7 @@ public class Data {
 	
 	public static boolean easyMode = true;								// Dificultad del juego, por defecto estara TRUE
 	public static boolean hardMode = false;								// Si esta TRUE, el juego será más dificil. La puntuación será x2
+	public static boolean chkMenu = false;
 	
 	public static File rankingData = new File("rankingData.txt");		// Fichero Ranking
 		
