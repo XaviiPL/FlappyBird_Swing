@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 public class MainMenu extends JFrame {
 
 	public static FlappyBird flappyBird;
+	public static Renderer renderer;
 	private static final long serialVersionUID = 1L;
 	public static MainMenu menu;
 	public ImagePanel img;
@@ -57,8 +58,8 @@ public class MainMenu extends JFrame {
 		btStart.setBounds(100, 300, 200, 50);
 		btStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				FlappyBird game = new FlappyBird()     ;
-				game.setVisible(true);
+				FlappyBird gameBird = new FlappyBird();
+				gameBird.setVisible(false);
 				setVisible(false);
 			}
 		});
@@ -74,57 +75,64 @@ public class MainMenu extends JFrame {
 		// dificultad del juego, EASY y HARD.
 
 		// El jugador podrá elegir con que dificultad quiere jugar,
-		// por defecto el juego estará en EASY.
-
+		// por defecto el juego estará en EASY.	
+		
 		btMode = new JButton("MODE");
 		btMode.setBounds(100, 400, 200, 50);
+		
+		// Crea 2 JButton EASY / HARD.
+		
+		btModeEasy = new JButton("EASY");
+		btModeHard = new JButton("HARD");
+		btModeEasy.setBounds(350, 400, 100, 50);
+		btModeHard.setBounds(500, 400, 100, 50);
+		btModeEasy.setVisible(false);
+		btModeHard.setVisible(false);
+
 		btMode.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				// Crea 2 JButton EASY / HARD.
-
-				btModeEasy = new JButton("EASY");
-				btModeHard = new JButton("HARD");
-
-				btModeEasy.setBounds(350, 400, 100, 50);
-				btModeHard.setBounds(500, 400, 100, 50);
-
-				add(btModeEasy);
-				add(btModeHard);
-
+				// Hace visibles los 2 botones extra
+				
+				btModeEasy.setVisible(true);
+				btModeHard.setVisible(true);
+				
 				// Bloquea otra pulsación hasta elegir dificultad
 				btMode.setEnabled(false);
-
-				// Al presionar el JButton EASY, cambia el boolean easyMode a TRUE y hardMode a FALSE
 				
-				btModeEasy.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						Data.easyMode = true;
-						Data.hardMode = false;
-						btModeEasy.setVisible(false);
-						btModeHard.setVisible(false);
-						btMode.setEnabled(true);
-					}
-				});
-
-				// Al presionar el JButton HARD, cambia el boolean easyMode a FALSE y hardMode a TRUE
-				btModeHard.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						Data.hardMode = true;
-						Data.easyMode = false;
-						btModeEasy.setVisible(false);
-						btModeHard.setVisible(false);
-						btMode.setEnabled(true);
-					}
-				});
-
-				// Una vez presionados, ambos botones se ocultan y activa de nuevo
-				// el JButton MODE
-
 			}
 		});
+		
+		btModeEasy.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				// Al presionar el JButton EASY, cambia el boolean easyMode a TRUE y hardMode a FALSE
+				
+				Data.easyMode = true;
+				Data.hardMode = false;
+				btModeEasy.setVisible(false);
+				btModeHard.setVisible(false);
+				btMode.setEnabled(true);
+			}
+		});
+		
+		// Al presionar el JButton HARD, cambia el boolean easyMode a FALSE y hardMode a TRUE
+		btModeHard.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Data.hardMode = true;
+				Data.easyMode = false;
+				btModeEasy.setVisible(false);
+				btModeHard.setVisible(false);
+				btMode.setEnabled(true);
+			}
+		});
+		
+		// Una vez presionados, ambos botones se ocultan y activa de nuevo
+		// el JButton MODE
 
 		add(btMode);
+		add(btModeEasy);
+		add(btModeHard);
 	}
 
 	private void btRanking() {

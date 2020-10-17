@@ -19,13 +19,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 public class FlappyBird extends JFrame implements ActionListener, MouseListener, KeyListener {
 
-	public static FlappyBird flappyBird;
+	public static FlappyBird flappyBird = new FlappyBird();
 	public Renderer renderer;
 	public Rectangle bird;
 	public ArrayList<Rectangle> pipes;
@@ -33,7 +34,7 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 	public int ticks, ySpeed, score, maxScore = 0;
 	public String name;
 	public Random random;
-
+	
 	public FlappyBird() {
 
 		Timer timer = new Timer(20, this);
@@ -151,13 +152,6 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 
 	public void stageGame() {
 
-		// Si el juego ha acabado. Borra todas las tuberías añadidas al ArrayList,
-		// reinicia marcador y crea un nuevo Rectangle del pájaro en la posición
-		// inicial.
-		// Tambíen crea otra tanda de tuberías.
-
-		// Una vez hecho el reseteo, con el boolean "finish" lo ""verifica""
-
 		if (finish) {
 
 			// Si la puntuación obtenida es mayor que la registrada en el ranking
@@ -180,7 +174,14 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 				}
 				
 			}
+			
+			// Si el juego ha acabado. Borra todas las tuberías añadidas al ArrayList,
+			// reinicia marcador y crea un nuevo Rectangle del pájaro en la posición
+			// inicial.
+			// Tambíen crea otra tanda de tuberías.
 
+			// Una vez hecho el reseteo, con el boolean "finish" lo ""verifica""
+			
 			bird = new Rectangle(Data.width / 2 - 10, Data.heigth / 2 - 10, 20, 20);
 			pipes.clear();
 			ySpeed = 0;
@@ -399,12 +400,6 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 
 	}
 
-	public static void main(String[] args) {
-
-		flappyBird = new FlappyBird();
-
-	}
-
 	// Si el jugador deja de presionar la tecla "SPACE" (Por lo cual antes debe de
 	// presionarla)
 	// ejecutará la funcion stageGame()
@@ -422,6 +417,8 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 		stageGame();
 
 	}
+	
+	
 
 	@Override
 	public void keyTyped(KeyEvent e) {
