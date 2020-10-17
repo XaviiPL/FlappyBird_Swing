@@ -2,15 +2,14 @@ package FlappyBird_Game;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
 public class MainMenu extends JFrame {
 
-	// public static FlappyBird flappyBird;
-	// private static final long serialVersionUID = 1L;
+	public static FlappyBird flappyBird;
+	private static final long serialVersionUID = 1L;
 	public static MainMenu menu;
 	public ImagePanel img;
 	public static JButton btStart, btMode, btRanking, btExit;
@@ -132,15 +131,16 @@ public class MainMenu extends JFrame {
 
 		// Botón RANKING
 		// Al ejecutar este botón, ejecutará la clase Ranking()
-		// que consta de otro JFrame donde estarán registradas
-		// las 10 mejores puntuaciones registradas y el nombre
-		// del jugador.
+		// que consta de otro JFrame donde estará registrada
+		// la mejor puntuacion y el nombre del jugador.
 
 		btRanking = new JButton("RANKING");
 		btRanking.setBounds(100, 500, 200, 50);
 		btRanking.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				Ranking ranking = new Ranking();
+				setVisible(false);
+				ranking.setVisible(true);
 			}
 		});
 

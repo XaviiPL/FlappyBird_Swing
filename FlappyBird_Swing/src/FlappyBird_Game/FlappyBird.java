@@ -10,20 +10,28 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
-public class FlappyBird extends JFrame implements ActionListener, MouseListener, KeyListener  {
+public class FlappyBird extends JFrame implements ActionListener, MouseListener, KeyListener {
 
 	public static FlappyBird flappyBird;
 	public Renderer renderer;
 	public Rectangle bird;
 	public ArrayList<Rectangle> pipes;
 	public boolean start, finish;
-	public int ticks, ySpeed, score;
+	public int ticks, ySpeed, score, maxScore = 0;
+	public String name;
 	public Random random;
 
 	public FlappyBird() {
@@ -32,6 +40,26 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 
 		renderer = new Renderer();
 		random = new Random();
+		
+		// Este TRY se encarga de obtener el valor de maxScore registrado en el fichero
+		// rankingData.txt
+		
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(Data.rankingData));
+			if (!(Data.rankingData.length() == 0)) {
+				String line = br.readLine();
+				String[] lineSplit = line.split(" // ");
+				maxScore = Integer.parseInt(lineSplit[1]);
+			}else {
+				maxScore = 0;
+			}			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		// Propiedades del JFrame principal del juego
 
@@ -131,6 +159,28 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 		// Una vez hecho el reseteo, con el boolean "finish" lo ""verifica""
 
 		if (finish) {
+
+			// Si la puntuación obtenida es mayor que la registrada en el ranking
+			// pedirá al usuario su nombre para después añadirlo al ranking.
+			if (score > maxScore) {
+				name = JOptionPane.showInputDialog("Introdueix el teu nom");
+				if (name.isEmpty() && name.isBlank()) {
+					name = "Anoním";
+				}
+				maxScore = score;
+				
+				// Escribe en el fichero rankingData.txt el nombre registrado y su máxima puntuación.
+				
+				try {
+					BufferedWriter bw = new BufferedWriter(new FileWriter(Data.rankingData));
+					bw.write(name + " // " + score);
+					bw.flush();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+			}
+
 			bird = new Rectangle(Data.width / 2 - 10, Data.heigth / 2 - 10, 20, 20);
 			pipes.clear();
 			ySpeed = 0;
@@ -243,7 +293,16 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 	public void actionPerformed(ActionEvent e) {
 
 		// Velocidad de paso de las tuberías. Cuanto mas, más rapido vienen.
-		int speed = 10;
+		// Si la dificultad es EASY = 10, si es HARD = 20
+		
+		int speed = 0;
+		if (Data.easyMode) {
+			 speed = 10;
+		}
+		if (Data.hardMode) {
+			speed = 20;
+		}
+		
 
 		// Bucles del juego, se produce cada 0,05s == "1seg = 20 ticks"
 		ticks++;
@@ -272,8 +331,16 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 			// que aumente ySpeed, más fuerte será la fuerza de la "gravedad" que enviará al
 			// pajaro contra el suelo. Afecta tanto en la caida como en el bote al bajar de
 			// velocidad
+			
+			// Si la dificultad es EASY, ySPEED = 2, si es HARD, ySPEED = 4
 			if (ticks % 2 == 0 && ySpeed < 15) {
-				ySpeed += 3;
+				if (Data.easyMode) {
+					ySpeed += 2;
+				}
+				if (Data.hardMode) {
+					ySpeed += 4;
+				}
+				
 			}
 
 			// Este FOR se encarga de eliminar del ArrayList una tubería cuando una de ellas
@@ -294,8 +361,8 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 			for (Rectangle pipe : pipes) {
 				// Si el pájaro atraviesa correctamente y sin tocar una tubería
 				// gana 1 punto
-				if (pipe.y == 0 && bird.x + bird.width / 2 > pipe.x + pipe.width / 2 - 10
-						&& bird.x + bird.width / 2 < pipe.x + pipe.width / 2 + 10) {
+				if (pipe.y == 0 && bird.x + bird.width / 2 > pipe.x + pipe.width / 2 - speed
+						&& bird.x + bird.width / 2 < pipe.x + pipe.width / 2 + speed) {
 					score++;
 				}
 				// Si el pájaro se estrella...
@@ -329,6 +396,12 @@ public class FlappyBird extends JFrame implements ActionListener, MouseListener,
 		}
 
 		renderer.repaint();
+
+	}
+
+	public static void main(String[] args) {
+
+		flappyBird = new FlappyBird();
 
 	}
 
